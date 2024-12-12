@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DevFreela.API.Entities;
+using DevFreela.API.Models;
+using DevFreela.API.Persistence;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevFreela.API.Controllers
 {
@@ -6,14 +10,53 @@ namespace DevFreela.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        [HttpPost]
-        public IActionResult Post()
+        private readonly DevFreelaDbContext _context;
+        public UsersController(DevFreelaDbContext context)
         {
+            _context = context;
+        }
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var user = _context.Users
+                .Include(u => u.Skills)
+                .ThenInclude(u => u.Skill)
+                .SingleOrDefault(u => u.Id == id);
+
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var model = UserViewModel.FromEntity(user);
             return Ok();
         }
 
+        [HttpPost]
+        public IActionResult Post(CreateUserInputModel model)
+        {
+            var user = new User(model.FullName, model.Email, model.BirthDate);
+
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpPost("{id}/skills")]
+
+        public IActionResult PosttSkills(int id, UserSkilsInputModel model)
+        {
+            var userSkill = model.SkillIds.Select(s => new UserSkill(id, s)).ToList();
+
+            _context.UserSkills.AddRange(userSkill);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
         [HttpPut("{id}/profile-picture")]
-        public IActionResult PostProfilePicture(IFormFile file)
+        public IActionResult PostProfilePicture(int id, IFormFile file)
         {
             var description = $"File: {file.FileName}, Size: {file.Length}";
 
