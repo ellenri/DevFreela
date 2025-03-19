@@ -1,7 +1,7 @@
-﻿using DevFreela.API.Entities;
+﻿using DevFreela.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace DevFreela.API.Persistence
+namespace DevFreela.Infrastructure.Persistence
 {
     public class DevFreelaDbContext : DbContext
     {
@@ -46,9 +46,15 @@ namespace DevFreela.API.Persistence
                 .Entity<ProjectComment>(e =>
                 {
                     e.HasKey(p => p.Id);
+
                     e.HasOne(p => p.Project)
                         .WithMany(p => p.Comments)
                         .HasForeignKey(p => p.IdProject)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    e.HasOne(p => p.User)
+                        .WithMany(u => u.Comments)
+                        .HasForeignKey(p => p.IdUser)
                         .OnDelete(DeleteBehavior.Restrict);
                 });
             builder

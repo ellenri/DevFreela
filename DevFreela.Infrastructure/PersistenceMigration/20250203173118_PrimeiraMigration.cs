@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace DevFreela.API.Persistence.Migrations1
+namespace DevFreela.Infrastructure.PersistenceMigration
 {
     /// <inheritdoc />
-    public partial class SegundaMigration : Migration
+    public partial class PrimeiraMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
