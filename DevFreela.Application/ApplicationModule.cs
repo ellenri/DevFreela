@@ -1,4 +1,6 @@
-﻿using DevFreela.Application.Services;
+﻿using DevFreela.Application.Commands.InsertProject;
+using DevFreela.Application.Models;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DevFreela.Application
@@ -7,13 +9,20 @@ namespace DevFreela.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddServices();
+            services
+                .AddHandlers();
+
             return services;
         }
 
-        private static IServiceCollection AddServices(this IServiceCollection services)
+
+        private static IServiceCollection AddHandlers(this IServiceCollection services)
         {
-            services.AddScoped<IProjectService, ProjectService>();
+            services.AddMediatR(config =>
+              config.RegisterServicesFromAssemblyContaining<InsertProjectCommand>());
+
+            services.AddTransient<IPipelineBehavior<InsertProjectCommand, ResultViewModel<int>>, ValidateInsertProjectCommandBehavior>();
+
             return services;
         }
     }
